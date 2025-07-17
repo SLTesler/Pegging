@@ -94,8 +94,17 @@ local function checkRoundCompletion()
     -- Round completes when goal is reached OR all balls are used and none active
     local goalReached = gameState.currentRound.score >= gameState.goal
     local ballsFinished = gameState.currentRound.balls_remaining == 0 and gameState.currentRound.active_balls == 0
+    local allBallsStopped = gameState.currentRound.active_balls == 0
     
-    if (goalReached or ballsFinished) and not roundSummary.active then
+    if goalReached and allBallsStopped and gameState.victoryTimer == 0 and not roundSummary.active then
+        -- Start victory celebration - 2 second sparkle show
+        gameState.victoryTimer = 2.0
+        -- Create lots of rainbow sparkles for victory
+        local scoreX = config.PLAY_X + config.PLAY_WIDTH/2
+        local scoreY = config.PLAY_Y + config.PLAY_HEIGHT/2
+        visualEffects.createRainbowSparkles(gameState, scoreX, scoreY, 30)
+        return false -- Don't complete yet, wait for celebration
+    elseif (ballsFinished or (goalReached and gameState.victoryTimer <= 0)) and not roundSummary.active then
         local rows, total = calculateRoundScoreAndBonuses()
         showRoundSummaryPopup(rows, total)
         return true
@@ -245,6 +254,22 @@ function love.update(dt)
         end
     end
     
+    -- Update victory timer
+    if gameState.victoryTimer > 0 then
+        gameState.victoryTimer = gameState.victoryTimer - dt
+        
+        -- Create additional sparkles during celebration
+        if math.random() < 0.3 then -- 30% chance per frame
+            local scoreX = config.PLAY_X + config.PLAY_WIDTH/2 + math.random(-100, 100)
+            local scoreY = config.PLAY_Y + config.PLAY_HEIGHT/2 + math.random(-100, 100)
+            visualEffects.createRainbowSparkles(gameState, scoreX, scoreY, 8)
+        end
+        
+        if gameState.victoryTimer <= 0 then
+            gameState.victoryTimer = 0
+        end
+    end
+    
     -- Check for score increase and trigger effects
     if gameState.currentRound.score > (gameState.lastRoundScore or 0) then
         gameState.scoreGlowTimer = config.SCORE_GLOW_DURATION
@@ -257,7 +282,7 @@ function love.update(dt)
     end
     
     -- Check if round is complete during gameplay
-    if gameState.state == config.GAME_STATE.PLAYING and gameState.currentRound.score >= gameState.goal then
+    if gameState.state == config.GAME_STATE.PLAYING and gameState.currentRound.score >= gameState.goal and gameState.currentRound.active_balls == 0 then
         gameState.canAdvanceRound = true
     end
 

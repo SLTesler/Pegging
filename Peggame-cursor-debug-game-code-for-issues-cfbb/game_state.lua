@@ -123,6 +123,7 @@ local gameState = {
     scoreGlowTimer = 0,
     scoreScaleTimer = 0,
     popperActivations = {}, -- Track recent popper activations for UI display
+    victoryTimer = 0, -- Timer for victory celebration before round summary
     wallHitTimer = nil,
     goldPegPositions = nil,
     bonusPegPositions = nil,
@@ -252,6 +253,7 @@ function gameState:reset()
     self.scoreGlowTimer = 0
     self.scoreScaleTimer = 0
     self.popperActivations = {}
+    self.victoryTimer = 0
     self.wallHitTimer = nil
     self.goldPegPositions = nil
     self.bonusPegPositions = nil

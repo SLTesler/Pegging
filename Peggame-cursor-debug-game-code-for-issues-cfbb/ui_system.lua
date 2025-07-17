@@ -15,15 +15,35 @@ local function drawPopperIcon(popperId, x, y, time, scale)
     local float = math.sin(time * 2 + x) * 6
     y = y + float
     if popperId == "greenPopper" then
-        love.graphics.setColor(0.1, 0.8, 0.2)
-        love.graphics.ellipse("fill", x + 40*scale, y + 40*scale, 32*scale, 18*scale)
-        love.graphics.setColor(0, 0.5, 0)
-        love.graphics.arc("fill", x + 40*scale, y + 22*scale, 14*scale, math.pi, math.pi * 2)
+        -- Draw a green UFO
+        love.graphics.setColor(0.2, 0.8, 0.2) -- Green main body
+        love.graphics.ellipse("fill", x + 40*scale, y + 45*scale, 30*scale, 15*scale) -- Main saucer
+        love.graphics.setColor(0.4, 1, 0.4) -- Lighter green dome
+        love.graphics.ellipse("fill", x + 40*scale, y + 35*scale, 20*scale, 12*scale) -- Dome
+        -- UFO lights (animated)
+        for i = 1, 6 do
+            local angle = (i / 6) * math.pi * 2 + time * 3
+            local lightX = x + 40*scale + math.cos(angle) * 22*scale
+            local lightY = y + 45*scale + math.sin(angle) * 8*scale
+            local brightness = 0.5 + 0.5 * math.sin(time * 8 + i)
+            love.graphics.setColor(1, 1, 1, brightness)
+            love.graphics.circle("fill", lightX, lightY, 2*scale)
+        end
     elseif popperId == "redPopper" then
-        love.graphics.setColor(0.9, 0.1, 0.1)
-        love.graphics.ellipse("fill", x + 40*scale, y + 40*scale, 32*scale, 18*scale)
-        love.graphics.setColor(0.5, 0, 0)
-        love.graphics.arc("fill", x + 40*scale, y + 22*scale, 14*scale, math.pi, math.pi * 2)
+        -- Draw a red UFO
+        love.graphics.setColor(0.8, 0.2, 0.2) -- Red main body
+        love.graphics.ellipse("fill", x + 40*scale, y + 45*scale, 30*scale, 15*scale) -- Main saucer
+        love.graphics.setColor(1, 0.4, 0.4) -- Lighter red dome
+        love.graphics.ellipse("fill", x + 40*scale, y + 35*scale, 20*scale, 12*scale) -- Dome
+        -- UFO lights (animated)
+        for i = 1, 6 do
+            local angle = (i / 6) * math.pi * 2 + time * 3
+            local lightX = x + 40*scale + math.cos(angle) * 22*scale
+            local lightY = y + 45*scale + math.sin(angle) * 8*scale
+            local brightness = 0.5 + 0.5 * math.sin(time * 8 + i)
+            love.graphics.setColor(1, 1, 1, brightness)
+            love.graphics.circle("fill", lightX, lightY, 2*scale)
+        end
     elseif popperId == "bluePopper" then
         -- Draw a blue UFO
         love.graphics.setColor(0.2, 0.4, 1) -- Blue main body
