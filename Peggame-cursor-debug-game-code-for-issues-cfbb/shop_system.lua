@@ -14,8 +14,10 @@ shopSystem.POPPERS = {
     {id = "bouncePopper", name = "Bounce Popper", desc = "Gain +10 points every time the ball bounces.", price = 22, rarity = 0.8},
     {id = "wallPopper", name = "Wall Popper", desc = "Gain +15 points every time the ball bounces off a wall.", price = 16, rarity = 1},
     {id = "comboPopper", name = "Combo Popper", desc = "Gain +20 points for every combo hit (3+ pegs in a single bounce).", price = 20, rarity = 0.8},
-    {id = "explosivePopper", name = "Explosive Popper", desc = "Every 5th peg hit in a round explodes, clearing nearby pegs and granting +50 points (red explosion).", price = 30, rarity = 0.6},
-    {id = "multiplierPopper", name = "Multiplier Popper", desc = "All points earned this round are multiplied by 1.2x.", price = 35, rarity = 0.5}
+    {id = "explosivePopper", name = "Explosive Popper", desc = "Every 10th peg hit in a round explodes, clearing nearby pegs and granting +50 points (red explosion).", price = 30, rarity = 0.6},
+    {id = "multiplierPopper", name = "Multiplier Popper", desc = "All points earned this round are multiplied by 1.2x.", price = 35, rarity = 0.5},
+    {id = "cincoPopper", name = "Cinco Popper", desc = "Gain +250 points every 5th bounce of the ball.", price = 45, rarity = 0.4},
+    {id = "bananaPopper", name = "Banana Popper", desc = "Gain +250 points for every yellow peg hit this round.", price = 50, rarity = 0.3}
 }
 
 -- Define the Candies
@@ -31,8 +33,7 @@ function shopSystem.isAvailable(gameState, id)
     if id == "extraBall4" then return gameState.round >= 20 and gameState.upgrades.extraBall3 and not gameState.upgrades.extraBall4 end
     if id == "multiplierBoost" then return gameState.multiplierBoostLevel < 5 end
     if id == "wallPoints" then return not gameState.upgrades.wallPoints end
-    if id == "wallToWall" then return gameState.wallToWallLevel < 5 end
-    if id == "paprika" then return gameState.paprikaLevel < 5 end
+
     if id == "extraLife" then return not gameState.upgrades.extraLife end
     if id == "speedBoost" then return true end -- Always available
     if id == "giantBall" then return true end -- Always available
@@ -80,21 +81,7 @@ function shopSystem.rerollShopItems(gameState)
     end
 end
 
--- Reroll shop perks
-function shopSystem.rerollShopPerks(gameState)
-    gameState.shopPerks = {}
-    local available = {}
-    for _, perk in ipairs(gameState.allPerks) do
-        if shopSystem.isAvailable(gameState, perk.id) then
-            table.insert(available, perk)
-        end
-    end
-    for i = 1, math.min(6, #available) do
-        local idx = math.random(#available)
-        table.insert(gameState.shopPerks, available[idx])
-        table.remove(available, idx)
-    end
-end
+
 
 -- Purchase item
 function shopSystem.purchaseItem(gameState, item)
@@ -135,6 +122,14 @@ function shopSystem.purchaseItem(gameState, item)
             gameState.poppers.multiplierPopper = 1
             gameState.coins = gameState.coins - item.price
             return true
+        elseif item.id == "cincoPopper" then
+            gameState.poppers.cincoPopper = 1
+            gameState.coins = gameState.coins - item.price
+            return true
+        elseif item.id == "bananaPopper" then
+            gameState.poppers.bananaPopper = 1
+            gameState.coins = gameState.coins - item.price
+            return true
         elseif item.id == "speedBoost" then
             require('power_ups').activatePowerUp(gameState, "speedBoost")
             gameState.coins = gameState.coins - item.price
@@ -159,52 +154,7 @@ function shopSystem.purchaseItem(gameState, item)
         elseif item.id == "wallPoints" then
             gameState.upgrades.wallPoints = true
             gameState.coins = gameState.coins - item.price
-        elseif item.id == "wallToWall" then
-            if gameState.wallToWallLevel < 5 then
-                gameState.wallToWallLevel = gameState.wallToWallLevel + 1
-                -- Find existing wall to wall perk or add new one
-                local found = false
-                for j = 1, 5 do
-                    if gameState.perks[j] == 1 then
-                        gameState.perkCounts[j] = gameState.perkCounts[j] + 1
-                        found = true
-                        break
-                    end
-                end
-                if not found then
-                    for j = 1, 5 do
-                        if gameState.perks[j] == 0 then
-                            gameState.perks[j] = 1
-                            gameState.perkCounts[j] = 1
-                            break
-                        end
-                    end
-                end
-                gameState.coins = gameState.coins - item.price
-            end
-        elseif item.id == "paprika" then
-            if gameState.paprikaLevel < 5 then
-                gameState.paprikaLevel = gameState.paprikaLevel + 1
-                -- Find existing paprika perk or add new one
-                local found = false
-                for j = 1, 5 do
-                    if gameState.perks[j] == 2 then
-                        gameState.perkCounts[j] = gameState.perkCounts[j] + 1
-                        found = true
-                        break
-                    end
-                end
-                if not found then
-                    for j = 1, 5 do
-                        if gameState.perks[j] == 0 then
-                            gameState.perks[j] = 2
-                            gameState.perkCounts[j] = 1
-                            break
-                        end
-                    end
-                end
-                gameState.coins = gameState.coins - item.price
-            end
+
         elseif item.id == "comboKing" then
             gameState.upgrades.comboKing = true
             gameState.coins = gameState.coins - item.price

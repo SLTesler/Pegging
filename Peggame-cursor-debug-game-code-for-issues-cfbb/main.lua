@@ -38,7 +38,6 @@ function love.load()
     uiSystem.initFonts(gameState)
     gameObjects.createPegs(gameState)
     shopSystem.rerollShopItems(gameState)
-    shopSystem.rerollShopPerks(gameState)
     
     -- Initialize wall hit timer
     gameState.wallHitTimer = nil
@@ -95,8 +94,17 @@ local function checkRoundCompletion()
     -- Round completes when goal is reached OR all balls are used and none active
     local goalReached = gameState.currentRound.score >= gameState.goal
     local ballsFinished = gameState.currentRound.balls_remaining == 0 and gameState.currentRound.active_balls == 0
+    local allBallsStopped = gameState.currentRound.active_balls == 0
     
-    if (goalReached or ballsFinished) and not roundSummary.active then
+    if goalReached and allBallsStopped and gameState.victoryTimer == 0 and not roundSummary.active then
+        -- Start victory celebration - 2 second sparkle show
+        gameState.victoryTimer = 2.0
+        -- Create lots of rainbow sparkles for victory
+        local scoreX = config.PLAY_X + config.PLAY_WIDTH/2
+        local scoreY = config.PLAY_Y + config.PLAY_HEIGHT/2
+        visualEffects.createRainbowSparkles(gameState, scoreX, scoreY, 30)
+        return false -- Don't complete yet, wait for celebration
+    elseif (ballsFinished or (goalReached and gameState.victoryTimer <= 0)) and not roundSummary.active then
         local rows, total = calculateRoundScoreAndBonuses()
         showRoundSummaryPopup(rows, total)
         return true
@@ -124,7 +132,6 @@ local function completeRound()
         local roundBonus = math.floor(gameState.currentRound.score / 400) + math.floor(gameState.lives / 2) + math.floor(gameState.round * 2)
         gameState.coins = gameState.coins + roundBonus
         shopSystem.rerollShopItems(gameState)
-        shopSystem.rerollShopPerks(gameState)
     end
 end
 
@@ -230,9 +237,43 @@ function love.update(dt)
         end
     end
     
+    -- Update score scale timer
+    if gameState.scoreScaleTimer > 0 then
+        gameState.scoreScaleTimer = gameState.scoreScaleTimer - dt
+        if gameState.scoreScaleTimer < 0 then
+            gameState.scoreScaleTimer = 0
+        end
+    end
+    
+    -- Update popper activation timers
+    for i = #gameState.popperActivations, 1, -1 do
+        local activation = gameState.popperActivations[i]
+        activation.timer = activation.timer - dt
+        if activation.timer <= 0 then
+            table.remove(gameState.popperActivations, i)
+        end
+    end
+    
+    -- Update victory timer
+    if gameState.victoryTimer > 0 then
+        gameState.victoryTimer = gameState.victoryTimer - dt
+        
+        -- Create additional sparkles during celebration
+        if math.random() < 0.3 then -- 30% chance per frame
+            local scoreX = config.PLAY_X + config.PLAY_WIDTH/2 + math.random(-100, 100)
+            local scoreY = config.PLAY_Y + config.PLAY_HEIGHT/2 + math.random(-100, 100)
+            visualEffects.createRainbowSparkles(gameState, scoreX, scoreY, 8)
+        end
+        
+        if gameState.victoryTimer <= 0 then
+            gameState.victoryTimer = 0
+        end
+    end
+    
     -- Check for score increase and trigger effects
     if gameState.currentRound.score > (gameState.lastRoundScore or 0) then
         gameState.scoreGlowTimer = config.SCORE_GLOW_DURATION
+        gameState.scoreScaleTimer = 0.5  -- Scale animation duration
         -- Add rainbow sparkles around score text
         local scoreX = config.PLAY_X + config.PLAY_WIDTH/2
         local scoreY = config.PLAY_Y + config.PLAY_HEIGHT + 100
@@ -241,7 +282,7 @@ function love.update(dt)
     end
     
     -- Check if round is complete during gameplay
-    if gameState.state == config.GAME_STATE.PLAYING and gameState.currentRound.score >= gameState.goal then
+    if gameState.state == config.GAME_STATE.PLAYING and gameState.currentRound.score >= gameState.goal and gameState.currentRound.active_balls == 0 then
         gameState.canAdvanceRound = true
     end
 
@@ -336,9 +377,9 @@ function love.draw()
         uiSystem.drawAimingSystem(gameState)
     end
     
-    -- Draw perk slots above play area (right side)
     if gameState.state == config.GAME_STATE.PLAYING then
         uiSystem.drawCandyRow(gameState)
+        uiSystem.drawPopperActivations(gameState)
     end
     
     -- Draw "Next Round" button during gameplay if score requirement met
@@ -417,22 +458,7 @@ end
 
 -- Handle mouse presses
 function love.mousepressed(x, y, button)
-    if button == 2 and gameState.state == config.GAME_STATE.PLAYING then
-        -- Right click to remove perks
-        for i = 1, 5 do
-            local px = config.PLAY_X + config.PLAY_WIDTH - 60 - (i-1)*50
-            local py = 10
-            if x >= px and x <= px + 40 and y >= py and y <= py + 40 and gameState.perks[i] ~= 0 then
-                if gameState.perkCounts[i] > 1 then
-                    gameState.perkCounts[i] = gameState.perkCounts[i] - 1
-                else
-                    gameState.perks[i] = 0
-                    gameState.perkCounts[i] = 0
-                end
-                return
-            end
-        end
-    elseif button == 1 then
+    if button == 1 then
         -- Handle round summary clicks
         if roundSummary.active then
             local btnW, btnH = 220, 60
@@ -463,7 +489,6 @@ function love.mousepressed(x, y, button)
                 gameState.coins = gameState.coins + math.floor(gameState.currentRound.score / 500) + math.floor(gameState.lives / 2)
                 gameState.round = gameState.round + 1
                 shopSystem.rerollShopItems(gameState)
-                shopSystem.rerollShopPerks(gameState)
                 return
             end
             
@@ -502,8 +527,8 @@ function love.mousepressed(x, y, button)
             local iconSize = 80
             local spacing = 90
             for i, item in ipairs(gameState.shopItems) do
-                local y = startY + (i-1)*spacing
-                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, y + 20, 80, 40
+                local itemY = startY + (i-1)*spacing
+                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, itemY + 20, 80, 40
                 local bought = gameState.poppers and (gameState.poppers[item.id] or 0) > 0
                 if not bought and x >= buyX and x <= buyX + buyW and y >= buyY and y <= buyY + buyH then
                     if gameState.coins >= item.price then
@@ -516,8 +541,8 @@ function love.mousepressed(x, y, button)
             local popperCount = #gameState.shopItems
             local candies = shopSystem.CANDIES
             for i, candy in ipairs(candies) do
-                local y = startY + popperCount * spacing + 60 + (i-1)*spacing
-                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, y + 20, 80, 40
+                local candyY = startY + popperCount * spacing + 60 + (i-1)*spacing
+                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, candyY + 20, 80, 40
                 local bought = gameState.candyBought and gameState.candyBought[candy.id]
                 if not bought and x >= buyX and x <= buyX + buyW and y >= buyY and y <= buyY + buyH then
                     if gameState.coins >= candy.price then

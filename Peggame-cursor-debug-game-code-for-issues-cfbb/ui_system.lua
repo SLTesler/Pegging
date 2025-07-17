@@ -15,15 +15,50 @@ local function drawPopperIcon(popperId, x, y, time, scale)
     local float = math.sin(time * 2 + x) * 6
     y = y + float
     if popperId == "greenPopper" then
-        love.graphics.setColor(0.1, 0.8, 0.2)
-        love.graphics.ellipse("fill", x + 40*scale, y + 40*scale, 32*scale, 18*scale)
-        love.graphics.setColor(0, 0.5, 0)
-        love.graphics.arc("fill", x + 40*scale, y + 22*scale, 14*scale, math.pi, math.pi * 2)
+        -- Draw a green UFO
+        love.graphics.setColor(0.2, 0.8, 0.2) -- Green main body
+        love.graphics.ellipse("fill", x + 40*scale, y + 45*scale, 30*scale, 15*scale) -- Main saucer
+        love.graphics.setColor(0.4, 1, 0.4) -- Lighter green dome
+        love.graphics.ellipse("fill", x + 40*scale, y + 35*scale, 20*scale, 12*scale) -- Dome
+        -- UFO lights (animated)
+        for i = 1, 6 do
+            local angle = (i / 6) * math.pi * 2 + time * 3
+            local lightX = x + 40*scale + math.cos(angle) * 22*scale
+            local lightY = y + 45*scale + math.sin(angle) * 8*scale
+            local brightness = 0.5 + 0.5 * math.sin(time * 8 + i)
+            love.graphics.setColor(1, 1, 1, brightness)
+            love.graphics.circle("fill", lightX, lightY, 2*scale)
+        end
     elseif popperId == "redPopper" then
-        love.graphics.setColor(0.9, 0.1, 0.1)
-        love.graphics.ellipse("fill", x + 40*scale, y + 40*scale, 32*scale, 18*scale)
-        love.graphics.setColor(0.5, 0, 0)
-        love.graphics.arc("fill", x + 40*scale, y + 22*scale, 14*scale, math.pi, math.pi * 2)
+        -- Draw a red UFO
+        love.graphics.setColor(0.8, 0.2, 0.2) -- Red main body
+        love.graphics.ellipse("fill", x + 40*scale, y + 45*scale, 30*scale, 15*scale) -- Main saucer
+        love.graphics.setColor(1, 0.4, 0.4) -- Lighter red dome
+        love.graphics.ellipse("fill", x + 40*scale, y + 35*scale, 20*scale, 12*scale) -- Dome
+        -- UFO lights (animated)
+        for i = 1, 6 do
+            local angle = (i / 6) * math.pi * 2 + time * 3
+            local lightX = x + 40*scale + math.cos(angle) * 22*scale
+            local lightY = y + 45*scale + math.sin(angle) * 8*scale
+            local brightness = 0.5 + 0.5 * math.sin(time * 8 + i)
+            love.graphics.setColor(1, 1, 1, brightness)
+            love.graphics.circle("fill", lightX, lightY, 2*scale)
+        end
+    elseif popperId == "bluePopper" then
+        -- Draw a blue UFO
+        love.graphics.setColor(0.2, 0.4, 1) -- Blue main body
+        love.graphics.ellipse("fill", x + 40*scale, y + 45*scale, 30*scale, 15*scale) -- Main saucer
+        love.graphics.setColor(0.4, 0.6, 1) -- Lighter blue dome
+        love.graphics.ellipse("fill", x + 40*scale, y + 35*scale, 20*scale, 12*scale) -- Dome
+        -- UFO lights (animated)
+        for i = 1, 6 do
+            local angle = (i / 6) * math.pi * 2 + time * 3
+            local lightX = x + 40*scale + math.cos(angle) * 22*scale
+            local lightY = y + 45*scale + math.sin(angle) * 8*scale
+            local brightness = 0.5 + 0.5 * math.sin(time * 8 + i)
+            love.graphics.setColor(1, 1, 1, brightness)
+            love.graphics.circle("fill", lightX, lightY, 2*scale)
+        end
     elseif popperId == "wallPopper" then
         love.graphics.setColor(0.7, 0.7, 0.7)
         love.graphics.rectangle("fill", x + 20*scale, y + 32*scale, 40*scale, 28*scale, 8*scale, 8*scale)
@@ -71,6 +106,42 @@ local function drawPopperIcon(popperId, x, y, time, scale)
             love.graphics.rectangle("fill", -4*scale, -32*scale, 8*scale, 64*scale, 4*scale, 4*scale)
             love.graphics.pop()
         end
+    elseif popperId == "cincoPopper" then
+        -- Draw a hand with 5 fingers
+        love.graphics.setColor(1, 0.8, 0.6) -- Skin tone
+        -- Palm
+        love.graphics.ellipse("fill", x + 40*scale, y + 50*scale, 20*scale, 25*scale)
+        -- Thumb
+        love.graphics.ellipse("fill", x + 22*scale, y + 45*scale, 8*scale, 15*scale)
+        -- Fingers
+        local fingerOffsets = {-12, -4, 4, 12}
+        for i, offset in ipairs(fingerOffsets) do
+            love.graphics.rectangle("fill", x + 38*scale + offset*scale, y + 25*scale, 4*scale, 20*scale, 2*scale, 2*scale)
+        end
+        -- Number "5" in the palm
+        love.graphics.setColor(1, 0.2, 0.2)
+        love.graphics.setFont(love.graphics.newFont(14*scale))
+        love.graphics.printf("5", x + 32*scale, y + 44*scale, 16*scale, "center")
+        love.graphics.setFont(love.graphics.getFont()) -- Reset font
+    elseif popperId == "bananaPopper" then
+        -- Draw a banana
+        love.graphics.setColor(1, 1, 0) -- Yellow banana
+        -- Banana body (curved)
+        love.graphics.push()
+        love.graphics.translate(x + 40*scale, y + 40*scale)
+        love.graphics.rotate(math.pi / 6) -- Slight curve
+        love.graphics.ellipse("fill", 0, 0, 25*scale, 12*scale)
+        love.graphics.pop()
+        -- Banana stem (brown)
+        love.graphics.setColor(0.4, 0.3, 0.1)
+        love.graphics.circle("fill", x + 28*scale, y + 25*scale, 4*scale)
+        -- Banana highlights
+        love.graphics.setColor(1, 1, 0.7)
+        love.graphics.push()
+        love.graphics.translate(x + 40*scale, y + 40*scale)
+        love.graphics.rotate(math.pi / 6)
+        love.graphics.ellipse("fill", -5*scale, -2*scale, 8*scale, 3*scale)
+        love.graphics.pop()
     end
 end
 
@@ -263,19 +334,21 @@ function uiSystem.drawShop(gameState)
         local canAfford = gameState.coins >= candy.price and not (gameState.candyBought and gameState.candyBought[candy.id])
         local bought = gameState.candyBought and gameState.candyBought[candy.id]
         local iconX = config.WIDTH/2 - iconSize/2
-        -- Draw heart icon for Candy of Life
+        -- Draw heart icon for Candy of Life with floating animation
+        local float = math.sin(gameState.time * 2 + iconX) * 6
+        local heartY = y + float
         love.graphics.setColor(1, 0.3, 0.5, bought and 0.3 or 1)
         love.graphics.polygon("fill",
-            iconX + 40, y + 40,
-            iconX + 20, y + 30,
-            iconX + 10, y + 50,
-            iconX + 40, y + 80,
-            iconX + 70, y + 50,
-            iconX + 60, y + 30
+            iconX + 40, heartY + 40,
+            iconX + 20, heartY + 30,
+            iconX + 10, heartY + 50,
+            iconX + 40, heartY + 80,
+            iconX + 70, heartY + 50,
+            iconX + 60, heartY + 30
         )
         love.graphics.setColor(1, 0.6, 0.8, bought and 0.3 or 1)
-        love.graphics.circle("fill", iconX + 25, y + 38, 16)
-        love.graphics.circle("fill", iconX + 55, y + 38, 16)
+        love.graphics.circle("fill", iconX + 25, heartY + 38, 16)
+        love.graphics.circle("fill", iconX + 55, heartY + 38, 16)
         -- Draw buy button to the right of icon (centered)
         local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, y + 20, 80, 40
         love.graphics.setColor(canAfford and not bought and {0.9, 0.8, 0.2, 1} or {0.5, 0.5, 0.2, 0.7})
@@ -471,8 +544,20 @@ function uiSystem.drawUI(gameState)
         love.graphics.setColor(1, 1, 1)
     end
     
+    -- Calculate scale based on scoreScaleTimer
+    local scale = 1.0
+    if gameState.scoreScaleTimer > 0 then
+        -- Create a bouncy scale effect that starts big and shrinks back to normal
+        local progress = 1 - (gameState.scoreScaleTimer / 0.5) -- Normalize to 0-1
+        scale = 1.0 + 0.5 * math.sin(progress * math.pi) -- Smooth sine curve from 1.0 to 1.5 and back
+    end
+    
+    love.graphics.push()
+    love.graphics.translate(progressX + progressWidth/2, scoreY + 20) -- Center point for scaling
+    love.graphics.scale(scale, scale)
     love.graphics.setFont(gameState.fonts.title)
-    love.graphics.printf(scoreText, progressX, scoreY, progressWidth, "center")
+    love.graphics.printf(scoreText, -progressWidth/2, -20, progressWidth, "center")
+    love.graphics.pop()
 
     -- Show yellow text for ball collision points above meter for 1 second
     if gameState.lastBallCollisionPoints and love.timer.getTime() - gameState.lastBallCollisionTime < 1 then
@@ -522,7 +607,7 @@ end
 function uiSystem.drawMultiplierMeter(gameState)
     local meterWidth = 60
     local meterHeight = 400
-    local meterX = config.PLAY_X + config.PLAY_WIDTH + 20
+    local meterX = config.PLAY_X - meterWidth - 30  -- Moved to left side to match combo indicator
     local meterY = config.PLAY_Y + config.PLAY_HEIGHT/2 - meterHeight/2
     
     -- Background
@@ -555,6 +640,35 @@ function uiSystem.drawMultiplierMeter(gameState)
     love.graphics.setFont(gameState.fonts.small)
     love.graphics.printf("x" .. string.format("%.0f", gameState.multiplier), meterX - 20, meterY - 30, meterWidth + 40, "center")
     love.graphics.printf(gameState.multiplierMeter .. "/10", meterX - 20, meterY + meterHeight + 10, meterWidth + 40, "center")
+end
+
+-- Draw popper activations
+function uiSystem.drawPopperActivations(gameState)
+    if not gameState.popperActivations or #gameState.popperActivations == 0 then
+        return
+    end
+    
+    local startX = config.PLAY_X + 10
+    local startY = config.PLAY_Y + 10
+    local spacing = 30
+    
+    for i, activation in ipairs(gameState.popperActivations) do
+        local y = startY + (i - 1) * spacing
+        local alpha = math.min(activation.timer / 2.0, 1.0)
+        
+        -- Draw popper icon
+        love.graphics.push()
+        love.graphics.translate(startX, y)
+        drawPopperIcon(activation.type .. "Popper", 0, 0, gameState.time, 0.5)
+        love.graphics.pop()
+        
+        -- Draw points text to the right of icon
+        love.graphics.setColor(activation.color[1], activation.color[2], activation.color[3], alpha)
+        love.graphics.setFont(gameState.fonts.normal)
+        love.graphics.printf("+" .. activation.points, startX + 50, y + 15, 100, "left")
+    end
+    
+    love.graphics.setColor(1, 1, 1, 1) -- Reset color
 end
 
 -- Draw candy row
@@ -645,9 +759,8 @@ function uiSystem.drawPoppers(gameState)
         local angle = (i / 8) * math.pi * 2
         local ox = math.cos(angle) * 3
         local oy = math.sin(angle) * 3
-        local hue = ((gameState.time * 100 + i * 45) % 360) / 360
-        local r, g, b = config.COLORS.rainbow(hue)
-        love.graphics.setColor(r, g, b, 0.8)
+        local glow = 0.5 + 0.3 * math.sin(gameState.time * 4)
+        love.graphics.setColor(0.2, 1, 0.2, glow) -- Green glowing outline
         love.graphics.printf(label, x + ox - 10, y + oy - 60, 200, "left")
     end
     love.graphics.setColor(1, 1, 1)
@@ -698,9 +811,8 @@ function uiSystem.drawCandies(gameState)
         local angle = (i / 8) * math.pi * 2
         local ox = math.cos(angle) * 3
         local oy = math.sin(angle) * 3
-        local hue = ((gameState.time * 100 + i * 45) % 360) / 360
-        local r, g, b = config.COLORS.rainbow(hue)
-        love.graphics.setColor(r, g, b, 0.8)
+        local glow = 0.5 + 0.3 * math.sin(gameState.time * 4)
+        love.graphics.setColor(1, 0.4, 0.8, glow) -- Pink glowing outline
         love.graphics.printf(label, x + ox - 10, y + oy - 60, 200, "left")
     end
     love.graphics.setColor(1, 1, 1)

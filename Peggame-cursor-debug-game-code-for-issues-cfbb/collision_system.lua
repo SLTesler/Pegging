@@ -40,11 +40,23 @@ local function applyPopperEffects(gameState, ball, peg, effectType)
         points = config.SCORING.CINCO_POPPER_POINTS
         effectText = "+" .. points .. " CINCO!"
         effectColor = {1, 0.8, 0.2}
+    elseif effectType == "yellow" and gameState.poppers and (gameState.poppers.bananaPopper or 0) > 0 then
+        points = config.SCORING.BANANA_POPPER_POINTS
+        effectText = "+" .. points .. " BANANA!"
+        effectColor = {1, 1, 0}
     end
     
     if points > 0 then
         gameState:ensureRoundState()
         gameState.currentRound.score = gameState.currentRound.score + points
+        
+        -- Track popper activation for UI display
+        table.insert(gameState.popperActivations, {
+            type = effectType,
+            points = points,
+            timer = 2.0, -- Show for 2 seconds
+            color = effectColor
+        })
         
         -- Show effect text for bounce effects (now only one)
         if effectType == "bounce" then
@@ -63,6 +75,7 @@ local function getPegColorType(peg)
     if r == 0.2 and g == 1 and b == 0.2 then return "green" end
     if r == 1 and g == 0.2 and b == 0.2 then return "red" end
     if r == 0 and g == 0.6 and b == 1 then return "blue" end
+    if r == 1 and g == 1 and b == 0 then return "yellow" end
     
     return nil
 end
@@ -78,7 +91,7 @@ local function updateMultiplierMeter(gameState, ball)
         gameState.rainbowShockwave = config.RAINBOW_SHOCKWAVE_DURATION
         
         -- Create visual effects
-        local meterX = config.PLAY_X + config.PLAY_WIDTH + 50
+        local meterX = config.PLAY_X - 60 - 30  -- Match the new left-side meter position
         local meterY = config.PLAY_Y + config.PLAY_HEIGHT/2
         visualEffects.createRainbowShockwave(gameState, meterX, meterY)
         visualEffects.addEffect(gameState, ball.x, ball.y - 30, "SCORE DOUBLED!", config.COLORS.multiplier)
@@ -112,6 +125,9 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
     
     for i = #gameState.pegs, 1, -1 do
         local peg = gameState.pegs[i]
+        if not peg then
+            goto continue
+        end
         local dx = ball.x - peg.x
         local dy = ball.y - peg.y
         local dist = math.sqrt(dx*dx + dy*dy)
@@ -168,14 +184,7 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
                 basePoints = math.max(1, math.floor(peg.points * 0.25))
                 peg.points = peg.points - basePoints
                 
-                -- Apply paprika bonus (25% increase to points gained)
-                local paprikaBonus = 0
-                for j, perk in ipairs(gameState.perks) do
-                    if perk == 2 then -- paprika perk
-                        paprikaBonus = paprikaBonus + (gameState.perkCounts[j] * 0.25)
-                    end
-                end
-                basePoints = math.floor(basePoints * (1 + paprikaBonus))
+
                 visualEffects.addEffect(gameState, peg.x + math.random(-20, 20), peg.y + math.random(-20, 20), "+" .. basePoints, config.COLORS.green)
             end
             
@@ -282,31 +291,42 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
 
             -- Track pegs hit for Explosive Popper
             gameState.pegsHitThisRound = (gameState.pegsHitThisRound or 0) + 1
-            -- Explosive Popper: every 5th peg hit in a round
-            if gameState.poppers and (gameState.poppers.explosivePopper or 0) > 0 and gameState.pegsHitThisRound % 5 == 0 then
+            -- Explosive Popper: every 10th peg hit in a round
+            if gameState.poppers and (gameState.poppers.explosivePopper or 0) > 0 and gameState.pegsHitThisRound % 10 == 0 then
                 -- Red explosion effect: clear nearby pegs and add points
                 local explosionRadius = 220
+                local explosionScore = 0
                 for j = #gameState.pegs, 1, -1 do
                     local peg2 = gameState.pegs[j]
-                    local dx2 = peg.x - peg2.x
-                    local dy2 = peg.y - peg2.y
-                    if math.sqrt(dx2*dx2 + dy2*dy2) < explosionRadius and peg2 ~= peg then
-                        table.remove(gameState.pegs, j)
-                        table.remove(gameState.pegShapes, j)
+                    if peg2 and peg2 ~= peg then
+                        local dx2 = peg.x - peg2.x
+                        local dy2 = peg.y - peg2.y
+                        if math.sqrt(dx2*dx2 + dy2*dy2) < explosionRadius then
+                            -- Add the destroyed peg's points to explosion score
+                            explosionScore = explosionScore + (peg2.points or 5)
+                            table.remove(gameState.pegs, j)
+                            table.remove(gameState.pegShapes, j)
+                        end
                     end
                 end
-                gameState.currentRound.score = gameState.currentRound.score + config.SCORING.EXPLOSIVE_POPPER_POINTS
+                -- Add both explosion bonus and destroyed peg scores
+                local totalExplosionPoints = config.SCORING.EXPLOSIVE_POPPER_POINTS + explosionScore
+                gameState.currentRound.score = gameState.currentRound.score + totalExplosionPoints
                 -- Red explosion animation
                 if visualEffects and visualEffects.createExplosion then
                     visualEffects.createExplosion(gameState, peg.x, peg.y, {1,0,0})
                 end
                 visualEffects.addEffect(gameState, peg.x, peg.y, "EXPLOSION!", {1,0,0})
+                if explosionScore > 0 then
+                    visualEffects.addEffect(gameState, peg.x, peg.y - 40, "+" .. totalExplosionPoints, {1, 0.8, 0.2})
+                end
             end
             -- Combo Popper: bonus for 3+ pegs in a single bounce
             if gameState.poppers and (gameState.poppers.comboPopper or 0) > 0 and (ball.comboHitCount or 0) >= 3 then
                 applyPopperEffects(gameState, ball, peg, "combo")
             end
         end
+        ::continue::
     end
 end
 
@@ -346,14 +366,7 @@ function collisionSystem.checkBallWallCollision(gameState, ball, dt)
     
     if wallHit then
         -- Score points with standardized values
-        local basePoints = (gameState.upgrades.wallPoints and config.SCORING.WALL_BASE_POINTS or 0) + config.SCORING.WALL_BASE_POINTS
-        local wallToWallBonus = 0
-        for _, perk in ipairs(gameState.perks) do
-            if perk == 1 then -- wall to wall perk
-                wallToWallBonus = wallToWallBonus + (gameState.wallToWallLevel * 5)
-            end
-        end
-        local totalPoints = basePoints + wallToWallBonus
+        local totalPoints = (gameState.upgrades.wallPoints and config.SCORING.WALL_BASE_POINTS or 0) + config.SCORING.WALL_BASE_POINTS
         local points = math.floor(totalPoints * gameState.multiplier)
         
         -- Apply multiplier popper effect to wall hits
