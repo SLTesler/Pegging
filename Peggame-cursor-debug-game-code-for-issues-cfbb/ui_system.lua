@@ -24,6 +24,21 @@ local function drawPopperIcon(popperId, x, y, time, scale)
         love.graphics.ellipse("fill", x + 40*scale, y + 40*scale, 32*scale, 18*scale)
         love.graphics.setColor(0.5, 0, 0)
         love.graphics.arc("fill", x + 40*scale, y + 22*scale, 14*scale, math.pi, math.pi * 2)
+    elseif popperId == "bluePopper" then
+        -- Draw a blue UFO
+        love.graphics.setColor(0.2, 0.4, 1) -- Blue main body
+        love.graphics.ellipse("fill", x + 40*scale, y + 45*scale, 30*scale, 15*scale) -- Main saucer
+        love.graphics.setColor(0.4, 0.6, 1) -- Lighter blue dome
+        love.graphics.ellipse("fill", x + 40*scale, y + 35*scale, 20*scale, 12*scale) -- Dome
+        -- UFO lights (animated)
+        for i = 1, 6 do
+            local angle = (i / 6) * math.pi * 2 + time * 3
+            local lightX = x + 40*scale + math.cos(angle) * 22*scale
+            local lightY = y + 45*scale + math.sin(angle) * 8*scale
+            local brightness = 0.5 + 0.5 * math.sin(time * 8 + i)
+            love.graphics.setColor(1, 1, 1, brightness)
+            love.graphics.circle("fill", lightX, lightY, 2*scale)
+        end
     elseif popperId == "wallPopper" then
         love.graphics.setColor(0.7, 0.7, 0.7)
         love.graphics.rectangle("fill", x + 20*scale, y + 32*scale, 40*scale, 28*scale, 8*scale, 8*scale)
@@ -88,6 +103,25 @@ local function drawPopperIcon(popperId, x, y, time, scale)
         love.graphics.setFont(love.graphics.newFont(14*scale))
         love.graphics.printf("5", x + 32*scale, y + 44*scale, 16*scale, "center")
         love.graphics.setFont(love.graphics.getFont()) -- Reset font
+    elseif popperId == "bananaPopper" then
+        -- Draw a banana
+        love.graphics.setColor(1, 1, 0) -- Yellow banana
+        -- Banana body (curved)
+        love.graphics.push()
+        love.graphics.translate(x + 40*scale, y + 40*scale)
+        love.graphics.rotate(math.pi / 6) -- Slight curve
+        love.graphics.ellipse("fill", 0, 0, 25*scale, 12*scale)
+        love.graphics.pop()
+        -- Banana stem (brown)
+        love.graphics.setColor(0.4, 0.3, 0.1)
+        love.graphics.circle("fill", x + 28*scale, y + 25*scale, 4*scale)
+        -- Banana highlights
+        love.graphics.setColor(1, 1, 0.7)
+        love.graphics.push()
+        love.graphics.translate(x + 40*scale, y + 40*scale)
+        love.graphics.rotate(math.pi / 6)
+        love.graphics.ellipse("fill", -5*scale, -2*scale, 8*scale, 3*scale)
+        love.graphics.pop()
     end
 end
 

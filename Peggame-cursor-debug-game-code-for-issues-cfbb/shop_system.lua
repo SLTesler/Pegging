@@ -16,7 +16,8 @@ shopSystem.POPPERS = {
     {id = "comboPopper", name = "Combo Popper", desc = "Gain +20 points for every combo hit (3+ pegs in a single bounce).", price = 20, rarity = 0.8},
     {id = "explosivePopper", name = "Explosive Popper", desc = "Every 5th peg hit in a round explodes, clearing nearby pegs and granting +50 points (red explosion).", price = 30, rarity = 0.6},
     {id = "multiplierPopper", name = "Multiplier Popper", desc = "All points earned this round are multiplied by 1.2x.", price = 35, rarity = 0.5},
-    {id = "cincoPopper", name = "Cinco Popper", desc = "Gain +250 points every 5th bounce of the ball.", price = 45, rarity = 0.4}
+    {id = "cincoPopper", name = "Cinco Popper", desc = "Gain +250 points every 5th bounce of the ball.", price = 45, rarity = 0.4},
+    {id = "bananaPopper", name = "Banana Popper", desc = "Gain +250 points for every yellow peg hit this round.", price = 50, rarity = 0.3}
 }
 
 -- Define the Candies
@@ -123,6 +124,10 @@ function shopSystem.purchaseItem(gameState, item)
             return true
         elseif item.id == "cincoPopper" then
             gameState.poppers.cincoPopper = 1
+            gameState.coins = gameState.coins - item.price
+            return true
+        elseif item.id == "bananaPopper" then
+            gameState.poppers.bananaPopper = 1
             gameState.coins = gameState.coins - item.price
             return true
         elseif item.id == "speedBoost" then

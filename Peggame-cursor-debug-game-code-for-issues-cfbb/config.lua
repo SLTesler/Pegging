@@ -78,6 +78,7 @@ local config = {
         COMBO_POPPER_POINTS = 20,
         EXPLOSIVE_POPPER_POINTS = 50,
         CINCO_POPPER_POINTS = 250,
+        BANANA_POPPER_POINTS = 250,
         
         -- Bonus effects
         DOUBLE_HIT_BASE = 3,

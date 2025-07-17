@@ -40,6 +40,10 @@ local function applyPopperEffects(gameState, ball, peg, effectType)
         points = config.SCORING.CINCO_POPPER_POINTS
         effectText = "+" .. points .. " CINCO!"
         effectColor = {1, 0.8, 0.2}
+    elseif effectType == "yellow" and gameState.poppers and (gameState.poppers.bananaPopper or 0) > 0 then
+        points = config.SCORING.BANANA_POPPER_POINTS
+        effectText = "+" .. points .. " BANANA!"
+        effectColor = {1, 1, 0}
     end
     
     if points > 0 then
@@ -63,6 +67,7 @@ local function getPegColorType(peg)
     if r == 0.2 and g == 1 and b == 0.2 then return "green" end
     if r == 1 and g == 0.2 and b == 0.2 then return "red" end
     if r == 0 and g == 0.6 and b == 1 then return "blue" end
+    if r == 1 and g == 1 and b == 0 then return "yellow" end
     
     return nil
 end
