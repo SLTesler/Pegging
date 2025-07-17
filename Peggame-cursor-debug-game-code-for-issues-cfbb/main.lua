@@ -502,8 +502,8 @@ function love.mousepressed(x, y, button)
             local iconSize = 80
             local spacing = 90
             for i, item in ipairs(gameState.shopItems) do
-                local y = startY + (i-1)*spacing
-                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, y + 20, 80, 40
+                local itemY = startY + (i-1)*spacing
+                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, itemY + 20, 80, 40
                 local bought = gameState.poppers and (gameState.poppers[item.id] or 0) > 0
                 if not bought and x >= buyX and x <= buyX + buyW and y >= buyY and y <= buyY + buyH then
                     if gameState.coins >= item.price then
@@ -516,8 +516,8 @@ function love.mousepressed(x, y, button)
             local popperCount = #gameState.shopItems
             local candies = shopSystem.CANDIES
             for i, candy in ipairs(candies) do
-                local y = startY + popperCount * spacing + 60 + (i-1)*spacing
-                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, y + 20, 80, 40
+                local candyY = startY + popperCount * spacing + 60 + (i-1)*spacing
+                local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, candyY + 20, 80, 40
                 local bought = gameState.candyBought and gameState.candyBought[candy.id]
                 if not bought and x >= buyX and x <= buyX + buyW and y >= buyY and y <= buyY + buyH then
                     if gameState.coins >= candy.price then
