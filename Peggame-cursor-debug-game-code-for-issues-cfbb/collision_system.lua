@@ -168,14 +168,7 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
                 basePoints = math.max(1, math.floor(peg.points * 0.25))
                 peg.points = peg.points - basePoints
                 
-                -- Apply paprika bonus (25% increase to points gained)
-                local paprikaBonus = 0
-                for j, perk in ipairs(gameState.perks) do
-                    if perk == 2 then -- paprika perk
-                        paprikaBonus = paprikaBonus + (gameState.perkCounts[j] * 0.25)
-                    end
-                end
-                basePoints = math.floor(basePoints * (1 + paprikaBonus))
+
                 visualEffects.addEffect(gameState, peg.x + math.random(-20, 20), peg.y + math.random(-20, 20), "+" .. basePoints, config.COLORS.green)
             end
             
@@ -346,14 +339,7 @@ function collisionSystem.checkBallWallCollision(gameState, ball, dt)
     
     if wallHit then
         -- Score points with standardized values
-        local basePoints = (gameState.upgrades.wallPoints and config.SCORING.WALL_BASE_POINTS or 0) + config.SCORING.WALL_BASE_POINTS
-        local wallToWallBonus = 0
-        for _, perk in ipairs(gameState.perks) do
-            if perk == 1 then -- wall to wall perk
-                wallToWallBonus = wallToWallBonus + (gameState.wallToWallLevel * 5)
-            end
-        end
-        local totalPoints = basePoints + wallToWallBonus
+        local totalPoints = (gameState.upgrades.wallPoints and config.SCORING.WALL_BASE_POINTS or 0) + config.SCORING.WALL_BASE_POINTS
         local points = math.floor(totalPoints * gameState.multiplier)
         
         -- Apply multiplier popper effect to wall hits

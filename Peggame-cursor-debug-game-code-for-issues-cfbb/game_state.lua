@@ -28,16 +28,11 @@ local gameState = {
         extraBall4 = false
     },
 
-    -- Perk system
+    -- Shop system
     maxBalls = 1,
     multiplierBoostLevel = 0,
-    paprikaLevel = 0,
-    perks = {0, 0, 0, 0, 0},
-    wallToWallLevel = 0,
-    perkCounts = {0, 0, 0, 0, 0},
     shopType = 1,
     shopItems = {},
-    shopPerks = {},
 
     -- Power-up system
     powerUps = {
@@ -100,14 +95,7 @@ local gameState = {
         {name="Multiplier Boost", desc="+5% multiplier gain per level", price=18, id="multiplierBoost"}
     },
 
-    allPerks = {
-        {name="Wall 2 Wall", desc="+2 points per wall hit", price=5, id="wallPoints"},
-        {name="Wall to Wall", desc="+5 points per wall hit", price=15, id="wallToWall"},
-        {name="Paprika", desc="+25% points from pegs", price=25, id="paprika"},
-        {name="Combo King", desc="Combo multiplier increases 25% faster", price=20, id="comboKing"},
-        {name="Explosion Expert", desc="Random explosions are 50% larger", price=25, id="explosionExpert"},
-        {name="Lucky Charm", desc="15% chance for power-ups to last longer", price=30, id="luckyCharm"}
-    },
+
 
     -- Visual effects
     effects = {},
@@ -210,13 +198,9 @@ function gameState:reset()
         extraBall4 = false
     }
     
-    -- Reset perk system
+    -- Reset shop system
     self.maxBalls = 1
     self.multiplierBoostLevel = 0
-    self.paprikaLevel = 0
-    self.perks = {0, 0, 0, 0, 0}
-    self.wallToWallLevel = 0
-    self.perkCounts = {0, 0, 0, 0, 0}
     
     -- Reset power-ups
     for _, powerUp in pairs(self.powerUps) do

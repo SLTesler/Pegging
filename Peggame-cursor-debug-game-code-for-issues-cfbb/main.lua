@@ -38,7 +38,6 @@ function love.load()
     uiSystem.initFonts(gameState)
     gameObjects.createPegs(gameState)
     shopSystem.rerollShopItems(gameState)
-    shopSystem.rerollShopPerks(gameState)
     
     -- Initialize wall hit timer
     gameState.wallHitTimer = nil
@@ -124,7 +123,6 @@ local function completeRound()
         local roundBonus = math.floor(gameState.currentRound.score / 400) + math.floor(gameState.lives / 2) + math.floor(gameState.round * 2)
         gameState.coins = gameState.coins + roundBonus
         shopSystem.rerollShopItems(gameState)
-        shopSystem.rerollShopPerks(gameState)
     end
 end
 
@@ -336,7 +334,6 @@ function love.draw()
         uiSystem.drawAimingSystem(gameState)
     end
     
-    -- Draw perk slots above play area (right side)
     if gameState.state == config.GAME_STATE.PLAYING then
         uiSystem.drawCandyRow(gameState)
     end
@@ -417,22 +414,7 @@ end
 
 -- Handle mouse presses
 function love.mousepressed(x, y, button)
-    if button == 2 and gameState.state == config.GAME_STATE.PLAYING then
-        -- Right click to remove perks
-        for i = 1, 5 do
-            local px = config.PLAY_X + config.PLAY_WIDTH - 60 - (i-1)*50
-            local py = 10
-            if x >= px and x <= px + 40 and y >= py and y <= py + 40 and gameState.perks[i] ~= 0 then
-                if gameState.perkCounts[i] > 1 then
-                    gameState.perkCounts[i] = gameState.perkCounts[i] - 1
-                else
-                    gameState.perks[i] = 0
-                    gameState.perkCounts[i] = 0
-                end
-                return
-            end
-        end
-    elseif button == 1 then
+    if button == 1 then
         -- Handle round summary clicks
         if roundSummary.active then
             local btnW, btnH = 220, 60
@@ -463,7 +445,6 @@ function love.mousepressed(x, y, button)
                 gameState.coins = gameState.coins + math.floor(gameState.currentRound.score / 500) + math.floor(gameState.lives / 2)
                 gameState.round = gameState.round + 1
                 shopSystem.rerollShopItems(gameState)
-                shopSystem.rerollShopPerks(gameState)
                 return
             end
             

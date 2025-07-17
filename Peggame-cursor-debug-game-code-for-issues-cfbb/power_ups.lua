@@ -98,18 +98,19 @@ function powerUps.drawComboIndicator(gameState)
     if gameState.combo.count > 0 then
         local comboAlpha = 0.7 + 0.3 * math.sin(gameState.time * 10)
         love.graphics.setColor(1, 0.5, 0, comboAlpha)
-        -- Draw big combo multiplier under the combo meter
+        -- Position combo meter to the left of play area
         local meterWidth = 60
         local meterHeight = 400
-        local meterX = config.PLAY_X + config.PLAY_WIDTH + 20
+        local meterX = config.PLAY_X - meterWidth - 30  -- Moved to left side
         local meterY = config.PLAY_Y + config.PLAY_HEIGHT/2 - meterHeight/2
-        local textX = meterX + meterWidth + 20
-        local textY = meterY + meterHeight + 30
+        -- Place text close to the left of the meter
+        local textX = meterX - 120
+        local textY = meterY + meterHeight/2 - 10
         love.graphics.setFont(gameState.fonts.normal)
-        love.graphics.printf("COMBO x" .. string.format("%.1f", gameState.combo.multiplier), textX, textY, 200, "left")
-        -- Space out hit count text lower in the center
+        love.graphics.printf("COMBO x" .. string.format("%.1f", gameState.combo.multiplier), textX, textY, 110, "center")
+        -- Place hit count text close above the multiplier text
         love.graphics.setFont(gameState.fonts.normal)
-        love.graphics.printf(gameState.combo.count .. " hits!", 0, config.HEIGHT/2 + 40, config.WIDTH, "center")
+        love.graphics.printf(gameState.combo.count .. " hits!", textX, textY - 30, 110, "center")
     end
 end
 

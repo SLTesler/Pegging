@@ -71,6 +71,23 @@ local function drawPopperIcon(popperId, x, y, time, scale)
             love.graphics.rectangle("fill", -4*scale, -32*scale, 8*scale, 64*scale, 4*scale, 4*scale)
             love.graphics.pop()
         end
+    elseif popperId == "cincoPopper" then
+        -- Draw a hand with 5 fingers
+        love.graphics.setColor(1, 0.8, 0.6) -- Skin tone
+        -- Palm
+        love.graphics.ellipse("fill", x + 40*scale, y + 50*scale, 20*scale, 25*scale)
+        -- Thumb
+        love.graphics.ellipse("fill", x + 22*scale, y + 45*scale, 8*scale, 15*scale)
+        -- Fingers
+        local fingerOffsets = {-12, -4, 4, 12}
+        for i, offset in ipairs(fingerOffsets) do
+            love.graphics.rectangle("fill", x + 38*scale + offset*scale, y + 25*scale, 4*scale, 20*scale, 2*scale, 2*scale)
+        end
+        -- Number "5" in the palm
+        love.graphics.setColor(1, 0.2, 0.2)
+        love.graphics.setFont(love.graphics.newFont(14*scale))
+        love.graphics.printf("5", x + 32*scale, y + 44*scale, 16*scale, "center")
+        love.graphics.setFont(love.graphics.getFont()) -- Reset font
     end
 end
 
@@ -522,7 +539,7 @@ end
 function uiSystem.drawMultiplierMeter(gameState)
     local meterWidth = 60
     local meterHeight = 400
-    local meterX = config.PLAY_X + config.PLAY_WIDTH + 20
+    local meterX = config.PLAY_X - meterWidth - 30  -- Moved to left side to match combo indicator
     local meterY = config.PLAY_Y + config.PLAY_HEIGHT/2 - meterHeight/2
     
     -- Background
