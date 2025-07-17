@@ -117,6 +117,9 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
     
     for i = #gameState.pegs, 1, -1 do
         local peg = gameState.pegs[i]
+        if not peg then
+            goto continue
+        end
         local dx = ball.x - peg.x
         local dy = ball.y - peg.y
         local dist = math.sqrt(dx*dx + dy*dy)
@@ -284,27 +287,38 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
             if gameState.poppers and (gameState.poppers.explosivePopper or 0) > 0 and gameState.pegsHitThisRound % 5 == 0 then
                 -- Red explosion effect: clear nearby pegs and add points
                 local explosionRadius = 220
+                local explosionScore = 0
                 for j = #gameState.pegs, 1, -1 do
                     local peg2 = gameState.pegs[j]
-                    local dx2 = peg.x - peg2.x
-                    local dy2 = peg.y - peg2.y
-                    if math.sqrt(dx2*dx2 + dy2*dy2) < explosionRadius and peg2 ~= peg then
-                        table.remove(gameState.pegs, j)
-                        table.remove(gameState.pegShapes, j)
+                    if peg2 and peg2 ~= peg then
+                        local dx2 = peg.x - peg2.x
+                        local dy2 = peg.y - peg2.y
+                        if math.sqrt(dx2*dx2 + dy2*dy2) < explosionRadius then
+                            -- Add the destroyed peg's points to explosion score
+                            explosionScore = explosionScore + (peg2.points or 5)
+                            table.remove(gameState.pegs, j)
+                            table.remove(gameState.pegShapes, j)
+                        end
                     end
                 end
-                gameState.currentRound.score = gameState.currentRound.score + config.SCORING.EXPLOSIVE_POPPER_POINTS
+                -- Add both explosion bonus and destroyed peg scores
+                local totalExplosionPoints = config.SCORING.EXPLOSIVE_POPPER_POINTS + explosionScore
+                gameState.currentRound.score = gameState.currentRound.score + totalExplosionPoints
                 -- Red explosion animation
                 if visualEffects and visualEffects.createExplosion then
                     visualEffects.createExplosion(gameState, peg.x, peg.y, {1,0,0})
                 end
                 visualEffects.addEffect(gameState, peg.x, peg.y, "EXPLOSION!", {1,0,0})
+                if explosionScore > 0 then
+                    visualEffects.addEffect(gameState, peg.x, peg.y - 40, "+" .. totalExplosionPoints, {1, 0.8, 0.2})
+                end
             end
             -- Combo Popper: bonus for 3+ pegs in a single bounce
             if gameState.poppers and (gameState.poppers.comboPopper or 0) > 0 and (ball.comboHitCount or 0) >= 3 then
                 applyPopperEffects(gameState, ball, peg, "combo")
             end
         end
+        ::continue::
     end
 end
 
