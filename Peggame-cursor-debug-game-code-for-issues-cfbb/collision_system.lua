@@ -83,7 +83,7 @@ local function updateMultiplierMeter(gameState, ball)
         gameState.rainbowShockwave = config.RAINBOW_SHOCKWAVE_DURATION
         
         -- Create visual effects
-        local meterX = config.PLAY_X + config.PLAY_WIDTH + 50
+        local meterX = config.PLAY_X - 60 - 30  -- Match the new left-side meter position
         local meterY = config.PLAY_Y + config.PLAY_HEIGHT/2
         visualEffects.createRainbowShockwave(gameState, meterX, meterY)
         visualEffects.addEffect(gameState, ball.x, ball.y - 30, "SCORE DOUBLED!", config.COLORS.multiplier)
