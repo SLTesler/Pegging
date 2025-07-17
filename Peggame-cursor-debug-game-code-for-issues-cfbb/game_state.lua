@@ -121,6 +121,7 @@ local gameState = {
     time = 0,
     collisionCount = 0,
     scoreGlowTimer = 0,
+    scoreScaleTimer = 0,
     wallHitTimer = nil,
     goldPegPositions = nil,
     bonusPegPositions = nil,
@@ -248,6 +249,7 @@ function gameState:reset()
     self.rainbowShockwave = 0
     self.collisionCount = 0
     self.scoreGlowTimer = 0
+    self.scoreScaleTimer = 0
     self.wallHitTimer = nil
     self.goldPegPositions = nil
     self.bonusPegPositions = nil

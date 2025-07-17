@@ -228,9 +228,18 @@ function love.update(dt)
         end
     end
     
+    -- Update score scale timer
+    if gameState.scoreScaleTimer > 0 then
+        gameState.scoreScaleTimer = gameState.scoreScaleTimer - dt
+        if gameState.scoreScaleTimer < 0 then
+            gameState.scoreScaleTimer = 0
+        end
+    end
+    
     -- Check for score increase and trigger effects
     if gameState.currentRound.score > (gameState.lastRoundScore or 0) then
         gameState.scoreGlowTimer = config.SCORE_GLOW_DURATION
+        gameState.scoreScaleTimer = 0.5  -- Scale animation duration
         -- Add rainbow sparkles around score text
         local scoreX = config.PLAY_X + config.PLAY_WIDTH/2
         local scoreY = config.PLAY_Y + config.PLAY_HEIGHT + 100

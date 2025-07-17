@@ -522,8 +522,20 @@ function uiSystem.drawUI(gameState)
         love.graphics.setColor(1, 1, 1)
     end
     
+    -- Calculate scale based on scoreScaleTimer
+    local scale = 1.0
+    if gameState.scoreScaleTimer > 0 then
+        -- Create a bouncy scale effect that starts big and shrinks back to normal
+        local progress = 1 - (gameState.scoreScaleTimer / 0.5) -- Normalize to 0-1
+        scale = 1.0 + 0.5 * math.sin(progress * math.pi) -- Smooth sine curve from 1.0 to 1.5 and back
+    end
+    
+    love.graphics.push()
+    love.graphics.translate(progressX + progressWidth/2, scoreY + 20) -- Center point for scaling
+    love.graphics.scale(scale, scale)
     love.graphics.setFont(gameState.fonts.title)
-    love.graphics.printf(scoreText, progressX, scoreY, progressWidth, "center")
+    love.graphics.printf(scoreText, -progressWidth/2, -20, progressWidth, "center")
+    love.graphics.pop()
 
     -- Show yellow text for ball collision points above meter for 1 second
     if gameState.lastBallCollisionPoints and love.timer.getTime() - gameState.lastBallCollisionTime < 1 then
