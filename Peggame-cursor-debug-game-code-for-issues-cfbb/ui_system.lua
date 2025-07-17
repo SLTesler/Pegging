@@ -314,19 +314,21 @@ function uiSystem.drawShop(gameState)
         local canAfford = gameState.coins >= candy.price and not (gameState.candyBought and gameState.candyBought[candy.id])
         local bought = gameState.candyBought and gameState.candyBought[candy.id]
         local iconX = config.WIDTH/2 - iconSize/2
-        -- Draw heart icon for Candy of Life
+        -- Draw heart icon for Candy of Life with floating animation
+        local float = math.sin(gameState.time * 2 + iconX) * 6
+        local heartY = y + float
         love.graphics.setColor(1, 0.3, 0.5, bought and 0.3 or 1)
         love.graphics.polygon("fill",
-            iconX + 40, y + 40,
-            iconX + 20, y + 30,
-            iconX + 10, y + 50,
-            iconX + 40, y + 80,
-            iconX + 70, y + 50,
-            iconX + 60, y + 30
+            iconX + 40, heartY + 40,
+            iconX + 20, heartY + 30,
+            iconX + 10, heartY + 50,
+            iconX + 40, heartY + 80,
+            iconX + 70, heartY + 50,
+            iconX + 60, heartY + 30
         )
         love.graphics.setColor(1, 0.6, 0.8, bought and 0.3 or 1)
-        love.graphics.circle("fill", iconX + 25, y + 38, 16)
-        love.graphics.circle("fill", iconX + 55, y + 38, 16)
+        love.graphics.circle("fill", iconX + 25, heartY + 38, 16)
+        love.graphics.circle("fill", iconX + 55, heartY + 38, 16)
         -- Draw buy button to the right of icon (centered)
         local buyX, buyY, buyW, buyH = config.WIDTH/2 + iconSize/2 + 16, y + 20, 80, 40
         love.graphics.setColor(canAfford and not bought and {0.9, 0.8, 0.2, 1} or {0.5, 0.5, 0.2, 0.7})
@@ -620,6 +622,35 @@ function uiSystem.drawMultiplierMeter(gameState)
     love.graphics.printf(gameState.multiplierMeter .. "/10", meterX - 20, meterY + meterHeight + 10, meterWidth + 40, "center")
 end
 
+-- Draw popper activations
+function uiSystem.drawPopperActivations(gameState)
+    if not gameState.popperActivations or #gameState.popperActivations == 0 then
+        return
+    end
+    
+    local startX = config.PLAY_X + 10
+    local startY = config.PLAY_Y + 10
+    local spacing = 30
+    
+    for i, activation in ipairs(gameState.popperActivations) do
+        local y = startY + (i - 1) * spacing
+        local alpha = math.min(activation.timer / 2.0, 1.0)
+        
+        -- Draw popper icon
+        love.graphics.push()
+        love.graphics.translate(startX, y)
+        drawPopperIcon(activation.type .. "Popper", 0, 0, gameState.time, 0.5)
+        love.graphics.pop()
+        
+        -- Draw points text to the right of icon
+        love.graphics.setColor(activation.color[1], activation.color[2], activation.color[3], alpha)
+        love.graphics.setFont(gameState.fonts.normal)
+        love.graphics.printf("+" .. activation.points, startX + 50, y + 15, 100, "left")
+    end
+    
+    love.graphics.setColor(1, 1, 1, 1) -- Reset color
+end
+
 -- Draw candy row
 function uiSystem.drawCandyRow(gameState)
     local shopSystem = require('shop_system')
@@ -708,9 +739,8 @@ function uiSystem.drawPoppers(gameState)
         local angle = (i / 8) * math.pi * 2
         local ox = math.cos(angle) * 3
         local oy = math.sin(angle) * 3
-        local hue = ((gameState.time * 100 + i * 45) % 360) / 360
-        local r, g, b = config.COLORS.rainbow(hue)
-        love.graphics.setColor(r, g, b, 0.8)
+        local glow = 0.5 + 0.3 * math.sin(gameState.time * 4)
+        love.graphics.setColor(0.2, 1, 0.2, glow) -- Green glowing outline
         love.graphics.printf(label, x + ox - 10, y + oy - 60, 200, "left")
     end
     love.graphics.setColor(1, 1, 1)
@@ -761,9 +791,8 @@ function uiSystem.drawCandies(gameState)
         local angle = (i / 8) * math.pi * 2
         local ox = math.cos(angle) * 3
         local oy = math.sin(angle) * 3
-        local hue = ((gameState.time * 100 + i * 45) % 360) / 360
-        local r, g, b = config.COLORS.rainbow(hue)
-        love.graphics.setColor(r, g, b, 0.8)
+        local glow = 0.5 + 0.3 * math.sin(gameState.time * 4)
+        love.graphics.setColor(1, 0.4, 0.8, glow) -- Pink glowing outline
         love.graphics.printf(label, x + ox - 10, y + oy - 60, 200, "left")
     end
     love.graphics.setColor(1, 1, 1)

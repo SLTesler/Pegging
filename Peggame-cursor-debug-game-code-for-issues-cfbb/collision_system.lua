@@ -50,6 +50,14 @@ local function applyPopperEffects(gameState, ball, peg, effectType)
         gameState:ensureRoundState()
         gameState.currentRound.score = gameState.currentRound.score + points
         
+        -- Track popper activation for UI display
+        table.insert(gameState.popperActivations, {
+            type = effectType,
+            points = points,
+            timer = 2.0, -- Show for 2 seconds
+            color = effectColor
+        })
+        
         -- Show effect text for bounce effects (now only one)
         if effectType == "bounce" then
             visualEffects.addEffect(gameState, ball.x, ball.y - 20, effectText, effectColor)
@@ -283,8 +291,8 @@ function collisionSystem.checkBallPegCollision(gameState, ball, dt)
 
             -- Track pegs hit for Explosive Popper
             gameState.pegsHitThisRound = (gameState.pegsHitThisRound or 0) + 1
-            -- Explosive Popper: every 5th peg hit in a round
-            if gameState.poppers and (gameState.poppers.explosivePopper or 0) > 0 and gameState.pegsHitThisRound % 5 == 0 then
+            -- Explosive Popper: every 10th peg hit in a round
+            if gameState.poppers and (gameState.poppers.explosivePopper or 0) > 0 and gameState.pegsHitThisRound % 10 == 0 then
                 -- Red explosion effect: clear nearby pegs and add points
                 local explosionRadius = 220
                 local explosionScore = 0

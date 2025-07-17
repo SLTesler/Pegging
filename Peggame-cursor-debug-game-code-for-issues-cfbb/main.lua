@@ -236,6 +236,15 @@ function love.update(dt)
         end
     end
     
+    -- Update popper activation timers
+    for i = #gameState.popperActivations, 1, -1 do
+        local activation = gameState.popperActivations[i]
+        activation.timer = activation.timer - dt
+        if activation.timer <= 0 then
+            table.remove(gameState.popperActivations, i)
+        end
+    end
+    
     -- Check for score increase and trigger effects
     if gameState.currentRound.score > (gameState.lastRoundScore or 0) then
         gameState.scoreGlowTimer = config.SCORE_GLOW_DURATION
@@ -345,6 +354,7 @@ function love.draw()
     
     if gameState.state == config.GAME_STATE.PLAYING then
         uiSystem.drawCandyRow(gameState)
+        uiSystem.drawPopperActivations(gameState)
     end
     
     -- Draw "Next Round" button during gameplay if score requirement met

@@ -122,6 +122,7 @@ local gameState = {
     collisionCount = 0,
     scoreGlowTimer = 0,
     scoreScaleTimer = 0,
+    popperActivations = {}, -- Track recent popper activations for UI display
     wallHitTimer = nil,
     goldPegPositions = nil,
     bonusPegPositions = nil,
@@ -250,6 +251,7 @@ function gameState:reset()
     self.collisionCount = 0
     self.scoreGlowTimer = 0
     self.scoreScaleTimer = 0
+    self.popperActivations = {}
     self.wallHitTimer = nil
     self.goldPegPositions = nil
     self.bonusPegPositions = nil

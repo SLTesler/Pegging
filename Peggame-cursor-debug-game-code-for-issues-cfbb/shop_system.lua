@@ -14,7 +14,7 @@ shopSystem.POPPERS = {
     {id = "bouncePopper", name = "Bounce Popper", desc = "Gain +10 points every time the ball bounces.", price = 22, rarity = 0.8},
     {id = "wallPopper", name = "Wall Popper", desc = "Gain +15 points every time the ball bounces off a wall.", price = 16, rarity = 1},
     {id = "comboPopper", name = "Combo Popper", desc = "Gain +20 points for every combo hit (3+ pegs in a single bounce).", price = 20, rarity = 0.8},
-    {id = "explosivePopper", name = "Explosive Popper", desc = "Every 5th peg hit in a round explodes, clearing nearby pegs and granting +50 points (red explosion).", price = 30, rarity = 0.6},
+    {id = "explosivePopper", name = "Explosive Popper", desc = "Every 10th peg hit in a round explodes, clearing nearby pegs and granting +50 points (red explosion).", price = 30, rarity = 0.6},
     {id = "multiplierPopper", name = "Multiplier Popper", desc = "All points earned this round are multiplied by 1.2x.", price = 35, rarity = 0.5},
     {id = "cincoPopper", name = "Cinco Popper", desc = "Gain +250 points every 5th bounce of the ball.", price = 45, rarity = 0.4},
     {id = "bananaPopper", name = "Banana Popper", desc = "Gain +250 points for every yellow peg hit this round.", price = 50, rarity = 0.3}
